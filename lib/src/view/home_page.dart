@@ -59,6 +59,10 @@ class HomePage extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
+                        ///Instruction Text
+                        Text('Select your T-shirt style and color by choosing this options:',style: TextStyle(color: Colors.grey.shade800,fontSize: 18,fontWeight: FontWeight.bold)),
+                        SizedBox(height: size.width * .02),
+
                         ///Color Dropdown
                         Container(
                           padding: const EdgeInsets.symmetric(
@@ -148,17 +152,6 @@ class HomePage extends StatelessWidget {
                             ],
                           ),
                         ),
-                        SizedBox(height: size.width * .04),
-
-                        ///Submit Button
-                        SizedBox(
-                          width: double.infinity,
-                          height: 45,
-                          child: ElevatedButton(
-                            onPressed: (){},
-                            child: const Text('Submit',style: TextStyle(fontSize: 16)),
-                          ),
-                        )
                       ]),
                 )),
 
@@ -191,6 +184,10 @@ class HomePage extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
+                          ///Instruction Text
+                          Text('Generate your unique image by choosing this options:',style: TextStyle(color: Colors.grey.shade800,fontSize: 18,fontWeight: FontWeight.bold)),
+                          SizedBox(height: size.width * .02),
+
                           ///Art Style Dropdown
                           Container(
                             padding: const EdgeInsets.symmetric(
@@ -229,8 +226,9 @@ class HomePage extends StatelessWidget {
                             val != null && val.isNotEmpty
                                 ? null
                                 : "Field can't be empty",
-                            minLines: 3,
-                            maxLines: 3,
+                            minLines: 2,
+                            maxLines: 8,
+                            keyboardType: TextInputType.multiline,
                             decoration: const InputDecoration(
                               alignLabelWithHint: true,
                               border: OutlineInputBorder(),
@@ -273,43 +271,52 @@ class HomePage extends StatelessWidget {
                           ),
                           SizedBox(height: size.width * .02),
 
-                          ///Image height
-                          TextFormField(
-                            controller: controller.height,
-                            validator: (val) =>
-                            val != null && val.isNotEmpty
-                                ? null
-                                : "Field can't be empty",
-                            decoration: const InputDecoration(
-                                border: OutlineInputBorder(),
-                                label: Text('Image height')
-                            ),
+                          ///Image height & width
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Expanded(
+                                child: TextFormField(
+                                  controller: controller.height,
+                                  validator: (val) =>
+                                  val != null && val.isNotEmpty
+                                      ? null
+                                      : "Field can't be empty",
+                                  decoration: const InputDecoration(
+                                      border: OutlineInputBorder(),
+                                      label: Text('Image height')
+                                  ),
+                                ),
+                              ),
+                              SizedBox(width: size.width*.01),
+                              Expanded(
+                                child: TextFormField(
+                                  controller: controller.weight,
+                                  validator: (val) =>
+                                  val != null && val.isNotEmpty
+                                      ? null
+                                      : "Field can't be empty",
+                                  decoration: const InputDecoration(
+                                      border: OutlineInputBorder(),
+                                      label: Text('Image width')
+                                  ),
+                                ),
+                              )
+                            ]
                           ),
                           SizedBox(height: size.width * .02),
 
-                          ///Image width
-                          TextFormField(
-                            controller: controller.weight,
-                            validator: (val) =>
-                            val != null && val.isNotEmpty
-                                ? null
-                                : "Field can't be empty",
-                            decoration: const InputDecoration(
-                                border: OutlineInputBorder(),
-                                label: Text('Image width')
-                            ),
-                          ),
-                          SizedBox(height: size.width * .04),
-
-                          ///Submit Button
-                          SizedBox(
+                          ///Generate Image Button
+                          controller.generatedArtResponse.value==null && controller.functionLoading.value==true
+                              ? const Center(child: CircularProgressIndicator())
+                              : SizedBox(
                             width: double.infinity,
                             height: 45,
                             child: ElevatedButton(
                               onPressed: ()async{
-                                await controller.promptSubmitButtonOnTap();
+                                await controller.generateImage();
                               },
-                              child: const Text('Submit',style: TextStyle(fontSize: 16)),
+                              child: const Text('Generate Image',style: TextStyle(fontSize: 16)),
                             ),
                           )
                         ]),
@@ -319,25 +326,31 @@ class HomePage extends StatelessWidget {
             ///Right Section
             Expanded(
                 flex: 3,
-                child: GridView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: size.width<1200?2:3,
-                    crossAxisSpacing: 10,
-                    mainAxisSpacing: 10
-                  ),
-                  itemCount: 9,
-                  itemBuilder: (context,index)=> InkWell(
-                    onTap: (){},borderRadius: const BorderRadius.all(Radius.circular(8)),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.grey.shade400,
-                        borderRadius: const BorderRadius.all(Radius.circular(8))
-                      ),
-                    ),
-                  ),
-                )
+                child: controller.generatedArtResponse.value!=null
+                    ? Image.network(controller.generatedArtResponse.value!,
+                    height: size.width * .25, width: size.width * .25,
+                    fit: BoxFit.fitHeight)
+                    : Icon(Icons.image,
+                    color: Colors.grey.shade400, size: size.width * .25)
+                // GridView.builder(
+                //   shrinkWrap: true,
+                //   physics: const NeverScrollableScrollPhysics(),
+                //   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                //     crossAxisCount: size.width<1200?2:3,
+                //     crossAxisSpacing: 10,
+                //     mainAxisSpacing: 10
+                //   ),
+                //   itemCount: 9,
+                //   itemBuilder: (context,index)=> InkWell(
+                //     onTap: (){},borderRadius: const BorderRadius.all(Radius.circular(8)),
+                //     child: Container(
+                //       decoration: BoxDecoration(
+                //         color: Colors.grey.shade400,
+                //         borderRadius: const BorderRadius.all(Radius.circular(8))
+                //       ),
+                //     ),
+                //   ),
+                // )
             )
           ]));
 
@@ -355,35 +368,35 @@ class HomePage extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
-                        Row(
-                          children: [
-                            Text('Image Position on T-Shirt: ',style: TextStyle(color: Theme.of(context).primaryColor,fontSize: 16)),
-                            Expanded(
-                              child: Row(
-                                children: AppString.positionList.map((item) => Expanded(
-                                  child: RadioListTile(
-                                      title: Text(item),
-                                      contentPadding: EdgeInsets.zero,
-                                      value: AppString.positionList.indexOf(item),
-                                      groupValue: controller.positionRadioValue.value,
-                                      onChanged: (val){
-                                        controller.positionRadioValue.value = int.parse(val.toString());
-                                      }
-                                  ),
-                                )).toList(),
-                              ),
-                            ),
-                          ],
+                        ///Instruction Text
+                        Text('Put your generated unique image on T-shirt:',style: TextStyle(color: Colors.grey.shade800,fontSize: 18,fontWeight: FontWeight.bold)),
+                        SizedBox(height: size.width * .02),
+
+                        Text('Generated image position on T-Shirt: ',style: TextStyle(color: Theme.of(context).primaryColor,fontSize: 16)),
+                        Column(
+                          children: AppString.positionList.map((item) => RadioListTile(
+                              title: Text(item),
+                              contentPadding: EdgeInsets.zero,
+                              value: AppString.positionList.indexOf(item),
+                              groupValue: controller.positionRadioValue.value,
+                              onChanged: (val){
+                                controller.positionRadioValue.value = int.parse(val.toString());
+                              }
+                          )).toList(),
                         ),
                         SizedBox(height: size.width*.02),
 
                         ///Submit Button
-                        SizedBox(
+                        controller.combineArtResponse.value==null && controller.generatedArtResponse.value!=null && controller.functionLoading.value==true
+                            ? const Center(child: CircularProgressIndicator())
+                            : SizedBox(
                           width: double.infinity,
                           height: 45,
                           child: ElevatedButton(
-                            onPressed: (){},
-                            child: const Text('Submit',style: TextStyle(fontSize: 16)),
+                            onPressed: ()async{
+                              await controller.combineImage();
+                            },
+                            child: const Text('Combine All Together',style: TextStyle(fontSize: 16)),
                           ),
                         )
                       ]),
@@ -392,7 +405,11 @@ class HomePage extends StatelessWidget {
             ///Right Section
             Expanded(
                 flex: 3,
-                child: Icon(Icons.image,
+                child: controller.combineArtResponse.value!=null
+                    ? Image.network(controller.combineArtResponse.value!,
+                    height: size.width * .25, width: size.width * .25,
+                    fit: BoxFit.fitHeight)
+                    : Icon(Icons.image,
                     color: Colors.grey.shade400, size: size.width * .25))
           ]));
 
